@@ -1,132 +1,645 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGIS - Kampunge Arek Suroboyo (KAS) RPA</title>
+    <title>WEBGIS | Kampung Belajar Wonokusumo</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons: Lucide (UI) & FontAwesome (Map Markers) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet & Supabase -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Tailwind Config (Aero Theme) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Aptos Narrow"', 'sans-serif'],
+                        heading: ['"Aptos Narrow"', 'sans-serif'],
+                    },
+                    colors: {
+                        corporate: {
+                            navy: '#0B2046', 
+                            blue: '#1A3B7C',
+                            teal: '#149EAA', 
+                            light: '#EAF5F6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        
+        .bg-hero-pattern {
+            background-image: linear-gradient(rgba(11, 32, 70, 0.85), rgba(11, 32, 70, 0.85)), url('https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Map Specific Styles */
         #map { width: 100%; height: 100%; z-index: 10; }
         .add-mode-active #map { cursor: crosshair !important; }
         .custom-marker-container { display: flex; justify-content: center; align-items: center; }
         .marker-pin {
             width: 35px; height: 35px; border-radius: 50% 50% 50% 0; position: absolute;
             transform: rotate(-45deg); left: 50%; top: 50%; margin: -17px 0 0 -17px;
-            border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .marker-pin i { transform: rotate(45deg); display: block; text-align: center; color: white; font-size: 16px; line-height: 31px; }
+        
+        /* Select Dropdown styling */
         .custom-select-filter {
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B2046' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;
         }
-        @keyframes bounceIn { 0% { opacity: 0; transform: scale(0.3); } 100% { opacity: 1; transform: scale(1); } }
-        .animate-bounce-in { animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+
+        /* Modal Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #149EAA; }
+
+        /* Sibling Hover Effect for Team */
+        .hover-sibling-container:hover > .hover-sibling-item {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+        .hover-sibling-container > .hover-sibling-item {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        .hover-sibling-container > .hover-sibling-item:hover {
+            transform: scale(1.05);
+            opacity: 1;
+            z-index: 20;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #149EAA;
+        }
+
+        /* Smooth reveal for sections & modals */
+        .reveal-content {
+            animation: reveal 0.5s ease-out forwards;
+        }
+        @keyframes reveal {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-reveal {
+            animation: revealModal 0.3s ease-out forwards;
+        }
+        @keyframes revealModal {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="font-sans text-gray-700 antialiased bg-gray-50 selection:bg-corporate-teal selection:text-white">
 
-    <header class="bg-blue-800 text-white shadow-md p-4 z-50 fixed w-full top-0">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-map-location-dot text-2xl text-blue-200"></i>
-                <h1 class="text-xl font-bold tracking-wide">Kampung Belajar Kelurahan Wonokusumo</h1>
+    <!-- Top Bar -->
+    <div class="hidden lg:block bg-corporate-navy text-gray-300 text-xs py-2 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex space-x-6">
+                <span class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3 text-corporate-teal"></i> Kelurahan Wonokusumo, Surabaya</span>
             </div>
-        </div>
-    </header>
-
-    <section id="beranda" class="pt-28 pb-8 px-4 text-center">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="text-3xl md:text-4xl font-extrabold text-blue-900 mb-2">Peta Kampung Belajar Kelurahan Wonokusumo</h2>
-            <p class="text-gray-600">Sistem informasi geografis dari sebaran program kampung belajar wilayah kelurahan Wonokusumo</p>
-        </div>
-    </section>
-
-    <section class="pb-16 px-4">
-        <div class="container mx-auto">
-            <div class="mb-4 flex flex-wrap justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center gap-4">
-                    <select id="filter-kategori" onchange="applyFilter()" class="custom-select-filter border-2 border-blue-400 rounded-xl px-4 py-2.5 font-bold text-gray-800 outline-none cursor-pointer bg-white shadow-sm min-w-[220px]">
-                        <option value="Semua">Tampilkan Semua</option>
-                        <option value="Sinau Bareng">Sinau Bareng</option>
-                        <option value="TPQ/TPA">TPQ/TPA</option>
-                        <option value="Paud">Paud</option>
-                        <option value="TK">TK</option>
-                        <option value="Panti Asuhan">Panti Asuhan</option>
-                        <option value="Bimbel">Bimbel</option>
-                    </select>
-                    <span id="total-kampung" class="font-bold text-blue-700 bg-blue-50 px-4 py-2.5 rounded-xl border border-blue-100 shadow-sm">0 Titik</span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="bukaModalManual()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md">INPUT MANUAL</button>
-                    <button id="btn-toggle-add" onclick="toggleAddMode()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md"><span id="btn-add-text">KLIK DI PETA</span></button>
-                </div>
+            <div class="flex space-x-4">
+                <span class="flex items-center gap-2 font-medium text-white"><i data-lucide="info" class="w-3 h-3 text-corporate-teal"></i> Kampunge Arek Suroboyo (KAS) RPA</span>
             </div>
-
-            <div class="h-[70vh] w-full rounded-2xl shadow-2xl border border-gray-200 overflow-hidden relative">
-                <div id="add-mode-alert" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-2 rounded-full shadow-lg z-[50] text-xs font-bold hidden animate-pulse">MODE PILIH LOKASI: Klik pada peta!</div>
-                <div id="map"></div>
-            </div>
-        </div>
-    </section>
-
-    <div id="modal-tambah-titik" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4" onclick="tutupModalJikaBackground(event)">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-bounce-in max-h-[90vh] overflow-y-auto">
-            <button onclick="tutupModalTambah()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Form Tambah Data</h3>
-            <form id="form-tambah-titik" onsubmit="simpanTitikBaru(event)" class="space-y-4">
-                <div class="flex gap-4">
-                    <div class="w-1/2"><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Latitude</label><input type="number" step="any" id="input-lat" required class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"></div>
-                    <div class="w-1/2"><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Longitude</label><input type="number" step="any" id="input-lng" required class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"></div>
-                </div>
-                <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nama Instansi</label><input type="text" id="input-nama" required class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"></div>
-                
-                <div class="flex gap-4">
-                    <div class="w-1/2"><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Hari Pelaksanaan</label><input type="text" id="input-hari" placeholder="Senin - Kamis" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                    <div class="w-1/2"><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Jam Operasional</label><input type="text" id="input-jam" placeholder="16:00 - 18:00" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="w-1/2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Kategori</label>
-                        <select id="input-kategori" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none">
-                            <option value="Sinau Bareng">Sinau Bareng</option><option value="TPQ/TPA">TPQ/TPA</option><option value="Paud">Paud</option><option value="TK">TK</option><option value="Panti Asuhan">Panti Asuhan</option><option value="Bimbel">Bimbel</option>
-                        </select>
-                    </div>
-                    <div class="w-1/2"><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Jumlah Anak</label><input type="number" id="input-jumlah-anak" placeholder="0" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="w-full"><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Status</label><select id="input-status" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none"><option value="Aktif">Aktif</option><option value="Tidak Aktif">Tidak Aktif</option></select></div>
-                </div>
-
-                <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Alamat</label><input type="text" id="input-alamat" required class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                
-                <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Deskripsi</label><textarea id="input-deskripsi" rows="2" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none resize-none focus:ring-2 focus:ring-blue-400"></textarea></div>
-
-                <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-red-500">Kendala</label><textarea id="input-kendala" rows="2" class="w-full border border-red-200 rounded-lg px-3 py-2 text-sm outline-none resize-none focus:ring-2 focus:ring-red-400"></textarea></div>
-
-                <div>
-                    <input type="file" id="input-foto" accept="image/*" class="hidden" onchange="previewFoto(event)">
-                    <div class="border-2 border-dashed border-gray-200 rounded-xl p-3 text-center cursor-pointer hover:bg-gray-50" onclick="document.getElementById('input-foto').click()">
-                        <div id="foto-placeholder" class="text-xs text-gray-400">Upload Foto</div>
-                        <img id="foto-preview" src="" class="hidden mx-auto max-h-32 rounded-lg">
-                    </div>
-                </div>
-                <button id="btn-submit" type="submit" class="w-full bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all hover:bg-blue-800">SIMPAN KE DATABASE</button>
-            </form>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+    <!-- Navigation -->
+    <nav class="sticky top-0 w-full bg-white shadow-md z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo & Title -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-corporate-navy rounded flex items-center justify-center">
+                        <i data-lucide="map" class="text-white w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-heading font-bold text-lg md:text-xl text-corporate-navy block leading-none">PIJAR Wonokusumo</span>
+                        <span class="text-[10px] uppercase tracking-widest text-corporate-teal font-bold hidden sm:block mt-1">Platform Informasi Kampung Belajar</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#beranda" class="text-gray-800 hover:text-corporate-teal font-bold uppercase tracking-wide text-sm transition-colors">Beranda</a>
+                    <a href="#tentang" class="text-gray-800 hover:text-corporate-teal font-bold uppercase tracking-wide text-sm transition-colors">Tentang Program</a>
+                    <a href="#eksplorasi" class="bg-corporate-teal text-white px-6 py-2.5 rounded-sm font-bold uppercase tracking-wide text-sm hover:bg-corporate-blue transition-colors">Peta Persebaran</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-gray-800 hover:text-corporate-teal focus:outline-none p-2">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-corporate-navy absolute w-full shadow-xl border-t border-white/10">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#beranda" class="block px-3 py-3 text-sm uppercase tracking-wide font-bold text-white hover:text-corporate-teal border-b border-white/10">Beranda</a>
+                <a href="#tentang" class="block px-3 py-3 text-sm uppercase tracking-wide font-bold text-white hover:text-corporate-teal border-b border-white/10">Tentang Program</a>
+                <a href="#eksplorasi" class="block px-3 py-3 mt-4 text-center rounded-sm text-sm uppercase tracking-wide font-bold bg-corporate-teal text-white hover:bg-corporate-light hover:text-corporate-navy">Peta Persebaran</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cover / Hero Section -->
+    <section id="beranda" class="relative bg-hero-pattern min-h-[85vh] flex items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
+            <div class="max-w-4xl text-center md:text-left fade-in-up">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-corporate-teal/20 border border-corporate-teal/50 text-corporate-light uppercase tracking-wider text-xs font-bold mb-6 rounded-sm">
+                    <span class="w-2 h-2 bg-corporate-teal rounded-full animate-pulse"></span>
+                    Web Geographic Information System
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight mb-6">
+                    "PIJAR <span class="text-corporate-teal"> WONOKUSUMO"</span> PLATFORM INFORMASI KAMPUNG BELAJAR
+                </h1>
+                <p class="text-lg text-gray-300 mb-10 max-w-3xl leading-relaxed">
+                    Menghadirkan transparansi dan kemudahan akses informasi sebaran program pendidikan anak usia dini, ruang sinau bareng, dan fasilitas edukasi lainnya di wilayah Wonokusumo.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <a href="#eksplorasi" class="px-8 py-4 bg-corporate-teal text-white font-semibold uppercase tracking-wide text-sm hover:bg-white hover:text-corporate-navy transition-all flex items-center justify-center gap-2 rounded-sm shadow-lg shadow-corporate-teal/30">
+                        Buka Peta Persebaran
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#tentang" class="px-8 py-4 bg-transparent border border-white text-white font-semibold uppercase tracking-wide text-sm hover:bg-white/10 transition-all flex items-center justify-center rounded-sm">
+                        Tentang Program
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="tentang" class="py-24 bg-white relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gray-50 rounded-bl-full -z-10"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 fade-in-up">
+                    <h2 class="text-corporate-teal font-bold tracking-widest uppercase text-sm mb-3">Latar Belakang</h2>
+                    <h3 class="text-3xl md:text-4xl font-heading font-bold text-corporate-navy mb-8 leading-tight">Mencerdaskan Generasi dari Tingkat Kampung</h3>
+                    
+                    <div class="space-y-6 text-gray-600 leading-relaxed text-justify">
+                        <p>
+                            Program <strong>Kampung Belajar</strong> merupakan inisiatif "Kampunge Arek Suroboyo (KAS) Ramah Perempuan dan Anak (RPA)" untuk menciptakan ekosistem pendidikan yang inklusif dan terjangkau di Kelurahan Wonokusumo.
+                        </p>
+                        <p>
+                            Sistem WebGIS ini dibangun untuk memetakan seluruh titik edukasi, mulai dari fasilitas Sinau Bareng, TPQ/TPA, PAUD, TK, Panti Asuhan, hingga Bimbingan Belajar. Melalui visualisasi data spasial ini, pemerintah dan masyarakat dapat dengan mudah memantau status, kendala operasional, dan sebaran peserta didik.
+                        </p>
+                    </div>
+
+                    <div class="mt-10 border-l-4 border-corporate-teal pl-6 py-2 bg-gray-50/50 rounded-r-lg">
+                        <h4 class="text-xl font-heading font-bold text-corporate-navy mb-2">Integrasi Data Presisi</h4>
+                        <p class="text-sm text-gray-600 italic">
+                            "Menyajikan data riil berbasis lokasi untuk mendukung pengambilan kebijakan dan evaluasi fasilitas pendidikan tingkat kelurahan."
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 relative fade-in-up delay-200 hidden lg:block">
+                    <div class="absolute inset-0 bg-corporate-teal translate-x-6 translate-y-6 rounded-sm"></div>
+                    <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Anak-anak belajar" class="relative z-10 object-cover h-[500px] w-full rounded-sm shadow-2xl grayscale-[20%]">
+                    
+                    <div class="absolute -bottom-8 -left-8 bg-corporate-navy text-white p-8 rounded-sm shadow-xl z-20 flex gap-8">
+                        <div>
+                            <h4 class="text-4xl font-heading font-bold text-corporate-teal mb-1">16</h4>
+                            <p class="text-xs font-medium uppercase tracking-widest text-gray-300">Total RW</p>
+                        </div>
+                        <div class="w-px bg-white/20"></div>
+                        <div>
+                            <h4 id="stat-titik" class="text-4xl font-heading font-bold text-corporate-teal mb-1">...</h4>
+                            <p class="text-xs font-medium uppercase tracking-widest text-gray-300">Titik Aktif</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team & Experience / Map Interactive Toggle Section -->
+    <section id="eksplorasi" class="py-24 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-16 fade-in-up">
+                <h3 class="text-3xl md:text-4xl font-heading font-bold text-corporate-navy mb-4">Our Team & Peta Persebaran</h3>
+                <p class="text-gray-600 max-w-2xl mx-auto text-sm leading-relaxed">
+                    Berikut merupakan peta persebaran dari program Kampung Belajar dan informasi mengenai anggota kelompok yang telah menyusun project ini.
+                </p>
+            </div>
+
+            <!-- Toggle Buttons -->
+            <div class="space-y-6 max-w-xl mx-auto fade-in-up delay-100">
+                <!-- Button Team -->
+                <div id="btn-team" onclick="toggleSection('team')" class="cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 border border-gray-100 p-8 text-center transition-all duration-300">
+                    <h4 class="text-4xl font-heading font-extrabold text-corporate-navy tracking-wide mb-1">Kelompok 6</h4>
+                    <p class="text-gray-500 text-sm font-medium">Anggota Kelompok yang Menyusun Project Ini</p>
+                </div>
+
+                <!-- Button Map (Experience) -->
+                <div id="btn-map" onclick="toggleSection('map')" class="cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 border border-gray-100 p-8 text-center transition-all duration-300">
+                    <h4 class="text-4xl font-heading font-extrabold text-corporate-navy tracking-wide mb-1">Peta Persebaran</h4>
+                    <p class="text-gray-500 text-sm font-medium">Peta Persebaran dan Opsi untuk Menambahkan Program</p>
+                </div>
+            </div>
+
+            <!-- ============================== -->
+            <!-- CONTENT: TEAM (Hidden Default) -->
+            <!-- ============================== -->
+            <div id="content-team" class="hidden mt-20 reveal-content">
+                <div class="text-center mb-12">
+                    <h4 class="text-2xl font-heading font-bold text-corporate-navy mb-2">Anggota Kelompok 6</h4>
+                    <div class="w-16 h-1 bg-corporate-teal mx-auto"></div>
+                </div>
+                
+                <!-- Exactly 5 people in the grid, using flex for perfect centering -->
+                <div class="flex flex-wrap justify-center gap-8 hover-sibling-container">
+                    
+                    <!-- Team Member 1 -->
+                    <div onclick="openTeamModal('Haryo Respati Kinari Putra', 'Ketua Kelompok 6', 'Fokus pada tata kelola internal, kemitraan strategis, dan sinkronisasi agenda antar RW untuk memastikan keberhasilan Kampung Belajar di wilayah Wonokusumo.', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Haryo Respati Kinari Putra" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                        </div>
+                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Haryo Respati Kinari Putra</h5>
+                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Ketua Kelompok 6</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                            Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </div>
+                    </div>
+
+                    <!-- Team Member 2 -->
+                    <div onclick="openTeamModal('Revania Liestin Ismawan', 'Koordinator PAUD & TK', 'Menyusun kurikulum ramah anak, mendampingi tenaga pengajar PAUD dan TK, serta mengkoordinasi fasilitas pendidikan dasar agar sesuai standar yang ditetapkan.', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Revania Liestin Ismawan" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                        </div>
+                        <h5 class="text-lg font-heading font-bold text-corporate-navy leading-tight mb-1">Revania Liestin Ismawan</h5>
+                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator PAUD & TK</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                            Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </div>
+                    </div>
+
+                    <!-- Team Member 3 -->
+                    <div onclick="openTeamModal('Syahrul Arya Maulana', 'Koordinator TPQ & TPA', 'Bertanggung jawab atas integrasi program keagamaan, peningkatan mutu pengajar ngaji, dan pelaporan perkembangan sarana prasarana TPQ/TPA di kelurahan.', 'https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                            <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Syahrul Arya Maulana" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                        </div>
+                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Syahrul Arya Maulana</h5>
+                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator TPQ & TPA</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                            Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </div>
+                    </div>
+
+                    <!-- Team Member 4 -->
+                    <div onclick="openTeamModal('Michelle Ernanta Berliana', 'Koordinator Sinau Bareng', 'Merancang program belajar tambahan yang menyenangkan dan inovatif. Membantu anak-anak usia sekolah dalam bimbingan tugas dan peningkatan literasi.', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Michelle Ernanta Berliana" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                        </div>
+                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Michelle Ernanta Berliana</h5>
+                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator Sinau Bareng</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                            Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </div>
+                    </div>
+
+                    <!-- Team Member 5 -->
+                    <div onclick="openTeamModal('Satya Priyatama', 'Koordinator Data & WebGIS', 'Pakar sistem informasi yang bertanggung jawab atas pengelolaan database spasial, pemutakhiran titik lokasi, dan keakuratan sistem Peta Sebaran web ini.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Satya Priyatama" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                        </div>
+                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Satya Priyatama</h5>
+                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator Data & WebGIS</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                            Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================================== -->
+            <!-- CONTENT: EXPERIENCE / MAP (Hidden Default) -->
+            <!-- ===================================== -->
+            <div id="content-map" class="hidden mt-20 reveal-content">
+                <div class="text-center mb-12">
+                    <h4 class="text-2xl font-heading font-bold text-corporate-navy mb-2">Eksplorasi Geografis Titik Edukasi</h4>
+                    <div class="w-16 h-1 bg-corporate-teal mx-auto"></div>
+                </div>
+
+                <!-- Map Controls -->
+                <div class="mb-6 flex flex-wrap justify-between items-center gap-4 bg-white p-5 rounded-sm border border-gray-200 shadow-sm">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="relative">
+                            <select id="filter-kategori" onchange="applyFilter()" class="custom-select-filter appearance-none border border-gray-300 rounded-sm px-5 py-3 pr-10 text-sm font-bold text-corporate-navy outline-none focus:border-corporate-teal focus:ring-1 focus:ring-corporate-teal cursor-pointer bg-white min-w-[200px]">
+                                <option value="Semua">Tampilkan Semua Kategori</option>
+                                <option value="Sinau Bareng">Sinau Bareng</option>
+                                <option value="TPQ/TPA">TPQ/TPA</option>
+                                <option value="Paud">Paud</option>
+                                <option value="TK">TK</option>
+                                <option value="Panti Asuhan">Panti Asuhan</option>
+                                <option value="Bimbel">Bimbel</option>
+                            </select>
+                        </div>
+                        <span id="total-kampung" class="font-bold text-corporate-teal bg-corporate-light px-5 py-3 rounded-sm border border-corporate-teal/20 text-sm">0 Titik Ditemukan</span>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button onclick="bukaModalManual()" class="bg-white border-2 border-corporate-navy text-corporate-navy hover:bg-corporate-navy hover:text-white px-5 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2">
+                            <i data-lucide="plus-square" class="w-4 h-4"></i> Input Manual
+                        </button>
+                        <button id="btn-toggle-add" onclick="toggleAddMode()" class="bg-corporate-teal hover:bg-corporate-blue text-white px-5 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all shadow-md flex items-center gap-2">
+                            <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> <span id="btn-add-text">Klik Di Peta</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Leaflet Map Container -->
+                <div class="h-[70vh] w-full rounded-sm shadow-xl border border-gray-300 relative overflow-hidden">
+                    <!-- Alert Info for Click Mode -->
+                    <div id="add-mode-alert" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-corporate-navy text-white px-6 py-3 rounded-sm shadow-xl z-[60] text-xs font-bold hidden items-center gap-3">
+                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        MODE PENAMBAHAN LOKASI AKTIF: KLIK PADA AREA PETA
+                    </div>
+                    
+                    <div id="map"></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-corporate-navy pt-16 pb-8 border-t-4 border-corporate-teal">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 border-b border-white/10 pb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-corporate-teal rounded flex items-center justify-center">
+                        <i data-lucide="map" class="text-white w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-heading font-bold text-lg text-white block leading-none">WebGIS Wonokusumo</span>
+                    </div>
+                </div>
+                <div class="text-gray-400 text-sm text-center md:text-right">
+                    Dikembangkan untuk mendukung inisiatif Kampunge Arek Suroboyo (KAS)<br>Ramah Perempuan dan Anak (RPA).
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 text-xs">© 2026 Pemerintah Kelurahan Wonokusumo. All rights reserved.</p>
+                <div class="flex gap-6 text-xs text-gray-500">
+                    <a href="#" class="hover:text-white transition-colors">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-white transition-colors">Syarat Ketentuan</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ======================= -->
+    <!-- MODAL TEAM MEMBER       -->
+    <!-- ======================= -->
+    <div id="team-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-corporate-navy/80 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl overflow-hidden relative flex flex-col md:flex-row animate-[revealModal_0.3s_ease-out]">
+            <button onclick="closeTeamModal()" class="absolute top-4 right-4 text-gray-400 hover:text-corporate-navy z-10 bg-white/50 backdrop-blur-md rounded-full p-1 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="md:w-2/5 bg-gray-100">
+                <img id="modal-img" src="" alt="Team Member" class="w-full h-full object-cover min-h-[300px]">
+            </div>
+            <div class="p-8 md:p-10 md:w-3/5 flex flex-col justify-center bg-white">
+                <p id="modal-role" class="text-corporate-teal font-bold tracking-widest uppercase text-xs mb-2"></p>
+                <h4 id="modal-name" class="text-3xl font-heading font-bold text-corporate-navy mb-4"></h4>
+                <div class="w-12 h-1 bg-corporate-teal mb-6"></div>
+                <p id="modal-desc" class="text-gray-600 text-sm leading-relaxed mb-6"></p>
+                <div class="mt-auto flex gap-3">
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-corporate-teal hover:text-white transition-colors">
+                        <i data-lucide="linkedin" class="w-4 h-4"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-corporate-teal hover:text-white transition-colors">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL FORM TAMBAH DATA PETA                  -->
+    <!-- ============================================== -->
+    <div id="modal-tambah-titik" class="fixed inset-0 bg-corporate-navy/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 transition-opacity" onclick="tutupModalJikaBackground(event)">
+        <div class="bg-white rounded-sm shadow-2xl max-w-2xl w-full p-0 relative flex flex-col max-h-[90vh] animate-[revealModal_0.3s_ease-out]">
+            
+            <!-- Modal Header -->
+            <div class="bg-gray-50 border-b border-gray-200 px-8 py-5 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="text-xl font-heading font-bold text-corporate-navy">Form Entri Fasilitas Pendidikan</h3>
+                    <p class="text-xs text-gray-500 mt-1">Lengkapi data untuk menambahkan titik lokasi baru ke dalam sistem.</p>
+                </div>
+                <button onclick="tutupModalTambah()" class="text-gray-400 hover:text-red-500 bg-white shadow-sm p-1.5 rounded transition-colors border border-gray-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-8 overflow-y-auto custom-scrollbar">
+                <form id="form-tambah-titik" onsubmit="simpanTitikBaru(event)" class="space-y-5">
+                    
+                    <!-- Coordinate Grid -->
+                    <div class="grid grid-cols-2 gap-5 p-4 bg-corporate-light/50 border border-corporate-teal/20 rounded-sm">
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Latitude</label>
+                            <input type="number" step="any" id="input-lat" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-1 focus:ring-corporate-teal focus:border-corporate-teal outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Longitude</label>
+                            <input type="number" step="any" id="input-lng" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-1 focus:ring-corporate-teal focus:border-corporate-teal outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Nama Instansi/Fasilitas <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-nama" required placeholder="Contoh: PAUD Melati RW 02" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal focus:border-corporate-teal outline-none transition-all">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Kategori</label>
+                            <select id="input-kategori" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none appearance-none">
+                                <option value="Sinau Bareng">Sinau Bareng</option>
+                                <option value="TPQ/TPA">TPQ/TPA</option>
+                                <option value="Paud">Paud</option>
+                                <option value="TK">TK</option>
+                                <option value="Panti Asuhan">Panti Asuhan</option>
+                                <option value="Bimbel">Bimbel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Jumlah Anak</label>
+                            <input type="number" id="input-jumlah-anak" placeholder="Contoh: 20" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Hari Pelaksanaan</label>
+                            <input type="text" id="input-hari" placeholder="Senin - Kamis" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Jam Operasional</label>
+                            <input type="text" id="input-jam" placeholder="16:00 - 18:00" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Alamat Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-alamat" required class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Status Aktif</label>
+                        <select id="input-status" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none appearance-none">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Tidak Aktif">Tidak Aktif</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Deskripsi Singkat</label>
+                            <textarea id="input-deskripsi" rows="3" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-red-600 uppercase tracking-widest mb-1.5">Kendala Lapangan</label>
+                            <textarea id="input-kendala" rows="3" placeholder="Tuliskan kendala jika ada..." class="w-full bg-red-50 border border-red-200 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-red-400 outline-none resize-none placeholder-red-300"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Dokumentasi Foto</label>
+                        <input type="file" id="input-foto" accept="image/*" class="hidden" onchange="previewFoto(event)">
+                        <div class="border-2 border-dashed border-gray-300 rounded-sm p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors bg-white" onclick="document.getElementById('input-foto').click()">
+                            <div id="foto-placeholder" class="text-sm text-gray-500 flex flex-col items-center gap-2">
+                                <i data-lucide="image-plus" class="w-6 h-6 text-corporate-teal"></i>
+                                Klik untuk mengunggah foto lokasi
+                            </div>
+                            <img id="foto-preview" src="" class="hidden mx-auto max-h-40 rounded shadow-sm object-cover">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 border-t border-gray-200 px-8 py-5 shrink-0">
+                <button id="btn-submit" onclick="document.getElementById('form-tambah-titik').requestSubmit()" class="w-full bg-corporate-teal hover:bg-corporate-navy text-white font-bold py-3.5 rounded-sm shadow-md transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Simpan ke Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- LOGIKA JAVASCRIPT (MAP, UI, SUPABASE)          -->
+    <!-- ============================================== -->
     <script>
-        // DATA BATAS RW (Sesuaikan dengan file JSON kamu)
+        // Init Lucide Icons UI
+        lucide.createIcons();
+
+        // Navbar UI Logic
+        const btnMenu = document.getElementById('mobile-menu-button');
+        const menuPanel = document.getElementById('mobile-menu');
+        btnMenu.addEventListener('click', () => menuPanel.classList.toggle('hidden'));
+        menuPanel.querySelectorAll('a').forEach(link => link.addEventListener('click', () => menuPanel.classList.add('hidden')));
+
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) navbar.classList.add('shadow-lg');
+            else navbar.classList.remove('shadow-lg');
+        });
+
+        // ------------------------------------------------------------------
+        // TOGGLE LOGIC: TEAM vs MAP
+        // ------------------------------------------------------------------
+        function toggleSection(sectionId) {
+            const teamContent = document.getElementById('content-team');
+            const mapContent = document.getElementById('content-map');
+            const btnTeam = document.getElementById('btn-team');
+            const btnMap = document.getElementById('btn-map');
+
+            if (sectionId === 'team') {
+                teamContent.classList.remove('hidden');
+                mapContent.classList.add('hidden');
+                btnTeam.classList.add('ring-2', 'ring-corporate-teal');
+                btnMap.classList.remove('ring-2', 'ring-corporate-teal');
+                setTimeout(() => { teamContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
+            } else if (sectionId === 'map') {
+                mapContent.classList.remove('hidden');
+                teamContent.classList.add('hidden');
+                btnMap.classList.add('ring-2', 'ring-corporate-teal');
+                btnTeam.classList.remove('ring-2', 'ring-corporate-teal');
+                
+                // CRUCIAL: Memicu perbaikan render map Leaflet saat container dari display:none menjadi terlihat
+                setTimeout(() => { 
+                    mapInstance.invalidateSize(true); 
+                    mapContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+                }, 200);
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // MODAL TEAM LOGIC
+        // ------------------------------------------------------------------
+        function openTeamModal(name, role, desc, imgSrc) {
+            document.getElementById('modal-name').innerText = name;
+            document.getElementById('modal-role').innerText = role;
+            document.getElementById('modal-desc').innerHTML = desc;
+            document.getElementById('modal-img').src = imgSrc;
+            
+            document.getElementById('team-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeTeamModal() {
+            document.getElementById('team-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+        
+        // Tutup modal tim jika klik area luarnya
+        document.getElementById('team-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeTeamModal();
+        });
+
+
+        // ------------------------------------------------------------------
+        // INTEGRASI SISTEM WEBGIS LEAFLET & SUPABASE
+        // ------------------------------------------------------------------
+
+        // 1. DATA GEOJSON (Batas RW Kelurahan Wonokusumo)
         const dataBatasRW = {
             "type": "FeatureCollection",
             "features": [
@@ -151,35 +664,59 @@
             ]
         };
 
+        // 2. SUPABASE INITIALIZATION
         const SUPABASE_URL = 'https://isjuziwdhyekwfoxyuxg.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzanV6aXdkaHlla3dmb3h5dXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzk3NjEsImV4cCI6MjA5MzcxNTc2MX0.5_c2B_7g8LHconQBEF_xdNcAeT2G6oBeMn3PofA7MNI';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let kasData = []; let markers = {};
+        // 3. MAP SETUP
+        let kasData = []; 
+        let markers = {};
+        
         const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: 'OSM' });
         const satelliteMap = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { attribution: 'Google Satellite' });
 
-        const mapInstance = L.map('map', { center: [-7.2354, 112.7588], zoom: 14, layers: [streetMap] });
+        const mapInstance = L.map('map', { center: [-7.2200, 112.7550], zoom: 15, layers: [streetMap] });
 
+        // Batas RW Polygon
         const batasRWLayer = L.geoJSON(dataBatasRW, {
-            style: { color: "#ef4444", weight: 2, opacity: 0.6, fillOpacity: 0.05, dashArray: '3' },
-            onEachFeature: (f, l) => { if (f.properties && f.properties.RW) l.bindPopup("Wilayah " + f.properties.RW); }
+            style: { color: "#1A3B7C", weight: 2, opacity: 0.8, fillOpacity: 0.05, dashArray: '4' },
+            onEachFeature: (f, l) => { if (f.properties && f.properties.RW) l.bindPopup(`<strong class="text-corporate-navy font-heading">Wilayah ${f.properties.RW}</strong>`); }
         }).addTo(mapInstance);
 
-        L.control.layers({ "Peta Jalan": streetMap, "Satelit": satelliteMap }, { "Batas RW": batasRWLayer }).addTo(mapInstance);
+        L.control.layers({ "Peta Jalan Dasar": streetMap, "Citra Satelit": satelliteMap }, { "Batas RW": batasRWLayer }).addTo(mapInstance);
 
+        // 4. MARKER SYMBOLOGY (Adapted to theme)
         const symbology = {
-            "Sinau Bareng": { color: "#3b82f6", icon: "fa-book-reader" }, "Panti Asuhan": { color: "#ec4899", icon: "fa-house" }, "Paud": { color: "#f59e0b", icon: "fa-child" }, "TK": { color: "#8b5cf6", icon: "fa-graduation-cap" }, "TPQ/TPA": { color: "#ef4444", icon: "fa-mosque" }, "Bimbel": { color: "#06b6d4", icon: "fa-pencil" }, "Default": { color: "#6b7280", icon: "fa-map-marker-alt" }
+            "Sinau Bareng": { color: "#149EAA", icon: "fa-book-reader" }, 
+            "Panti Asuhan": { color: "#ec4899", icon: "fa-house" }, 
+            "Paud": { color: "#f59e0b", icon: "fa-child" }, 
+            "TK": { color: "#8b5cf6", icon: "fa-graduation-cap" }, 
+            "TPQ/TPA": { color: "#ef4444", icon: "fa-mosque" }, 
+            "Bimbel": { color: "#0B2046", icon: "fa-pencil" }, 
+            "Default": { color: "#6b7280", icon: "fa-map-marker-alt" }
         };
 
         function createCustomIcon(category) {
             const config = symbology[category] || symbology["Default"];
-            return L.divIcon({ html: `<div class="custom-marker-container"><div class="marker-pin" style="background: ${config.color};"><i class="fa-solid ${config.icon}"></i></div></div>`, className: '', iconSize: [35, 35], iconAnchor: [17, 35], popupAnchor: [0, -35] });
+            return L.divIcon({ 
+                html: `<div class="custom-marker-container"><div class="marker-pin" style="background: ${config.color};"><i class="fa-solid ${config.icon}"></i></div></div>`, 
+                className: '', iconSize: [35, 35], iconAnchor: [17, 35], popupAnchor: [0, -35] 
+            });
         }
 
-        function applyFilter() { const selected = document.getElementById('filter-kategori').value; renderMarkers(selected === "Semua" ? kasData : kasData.filter(i => i.kategori === selected)); }
+        // 5. FETCH & RENDER DATA
+        function applyFilter() { 
+            const selected = document.getElementById('filter-kategori').value; 
+            renderMarkers(selected === "Semua" ? kasData : kasData.filter(i => i.kategori === selected)); 
+        }
 
-        async function fetchDatabaseData() { const { data } = await _supabase.from('kas_data').select('*').order('id', { ascending: true }); kasData = data || []; applyFilter(); }
+        async function fetchDatabaseData() { 
+            const { data } = await _supabase.from('kas_data').select('*').order('id', { ascending: true }); 
+            kasData = data || []; 
+            document.getElementById('stat-titik').innerText = kasData.length;
+            applyFilter(); 
+        }
 
         function renderMarkers(dataToRender) {
             for (let id in markers) { mapInstance.removeLayer(markers[id]); delete markers[id]; }
@@ -187,75 +724,157 @@
                 const marker = L.marker([item.lat, item.lng], { icon: createCustomIcon(item.kategori) }).addTo(mapInstance);
                 const color = (symbology[item.kategori] || symbology["Default"]).color;
                 
-                // UPDATE: Menampilkan data tambahan di Popup
+                // Format Teks Jumlah Anak
+                let displayJumlahAnak = "-";
+                if (item.jumlah_anak !== null && item.jumlah_anak !== undefined && item.jumlah_anak !== "") {
+                    if (item.jumlah_anak.toString() === "0") {
+                        displayJumlahAnak = "-";
+                    } else {
+                        // Tambahkan kata "Orang" jika belum ada
+                        displayJumlahAnak = item.jumlah_anak.toString().toLowerCase().includes("orang") ? item.jumlah_anak : `${item.jumlah_anak} Orang`;
+                    }
+                }
+
+                // Popup Content Styling (Tailwind-like inline styles)
                 marker.bindPopup(`
-                    <div style="width:220px; font-family:sans-serif;">
-                        ${item.foto_url ? `<img src="${item.foto_url}" style="width:100%;height:110px;object-fit:cover;border-radius:10px;margin-bottom:8px;">` : ''}
-                        <h4 style="font-weight:800;margin:0;font-size:15px;color:#1e3a8a;">${item.name}</h4>
-                        <p style="font-size:10px;color:#64748b;margin:4px 0;">📍 ${item.alamat}</p>
+                    <div style="width:240px; font-family:'Aptos Narrow', sans-serif;">
+                        ${item.foto_url ? `<img src="${item.foto_url}" style="width:100%;height:120px;object-fit:cover;border-radius:4px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.1);">` : ''}
                         
-                        <div style="margin:10px 0; padding:8px; background:#f8fafc; border-radius:8px; font-size:11px; color:#334155;">
-                            <div style="margin-bottom:4px;"><b>📅 Hari:</b> ${item.hari_pelaksanaan || '-'}</div>
-                            <div style="margin-bottom:4px;"><b>⏰ Jam:</b> ${item.jam_operasional || '-'}</div>
-                            <div style="margin-bottom:4px;"><b>👥 Anak:</b> ${item.jumlah_anak || 0} Orang</div>
-                            <div style="color:#dc2626;"><b>⚠️ Kendala:</b> ${item.kendala || '-'}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
+                            <h4 style="font-weight:bold; margin:0; font-size:16px; color:#0B2046; line-height:1.2;">${item.name}</h4>
+                        </div>
+                        <p style="font-size:11px; color:#64748b; margin:0 0 10px 0;"><i class="fa-solid fa-location-dot" style="color:#149EAA;"></i> ${item.alamat}</p>
+                        
+                        <div style="margin:10px 0; padding:10px; background:#EAF5F6; border: 1px solid rgba(20,158,170,0.2); border-radius:4px; font-size:11px; color:#1A3B7C;">
+                            <div style="margin-bottom:6px;"><b><i class="fa-regular fa-calendar" style="width:12px;"></i></b> ${item.hari_pelaksanaan || '-'}</div>
+                            <div style="margin-bottom:6px;"><b><i class="fa-regular fa-clock" style="width:12px;"></i></b> ${item.jam_operasional || '-'}</div>
+                            <div style="margin-bottom:6px;"><b><i class="fa-solid fa-users" style="width:12px;"></i></b> ${displayJumlahAnak}</div>
+                            <div style="color:#ef4444;"><b><i class="fa-solid fa-triangle-exclamation" style="width:12px;"></i></b> ${item.kendala || 'Tidak ada kendala tercatat'}</div>
                         </div>
 
-                        <p style="font-size:11px;color:#475569;margin-bottom:10px;line-height:1.4;">${item.description || ''}</p>
+                        <p style="font-size:11px; color:#475569; margin-bottom:12px; line-height:1.5;">${item.description || ''}</p>
                         
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:9px;background:${color};color:white;padding:3px 8px;border-radius:5px;font-weight:bold;">${item.kategori}</span>
-                            <button onclick="hapusTitik(${item.id})" style="color:#ef4444;font-size:10px;cursor:pointer;font-weight:bold;background:none;border:none;">HAPUS</button>
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e2e8f0; padding-top:10px;">
+                            <span style="font-size:10px; background:${color}; color:white; padding:4px 8px; border-radius:2px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase;">${item.kategori}</span>
+                            <button onclick="hapusTitik(${item.id})" style="color:#ef4444; font-size:10px; cursor:pointer; font-weight:bold; background:none; border:none; text-transform:uppercase;">Hapus Data</button>
                         </div>
                     </div>
                 `);
                 markers[item.id] = marker;
             });
-            document.getElementById('total-kampung').innerText = `${dataToRender.length} Titik`;
+            document.getElementById('total-kampung').innerText = `${dataToRender.length} Titik Ditemukan`;
         }
 
+        // 6. ADD DATA LOGIC
         async function simpanTitikBaru(e) {
-            e.preventDefault(); const btn = document.getElementById('btn-submit'); btn.disabled = true; btn.innerText = "SEDANG MENYIMPAN...";
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-submit'); 
+            const originalText = btn.innerHTML;
+            btn.disabled = true; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            
             try {
-                let fotoUrl = null; const file = document.getElementById('input-foto').files[0];
+                let fotoUrl = null; 
+                const file = document.getElementById('input-foto').files[0];
                 if (file) {
                     const fileName = `foto_${Date.now()}.${file.name.split('.').pop()}`;
                     await _supabase.storage.from('kas-photos').upload(`kampung/${fileName}`, file);
                     fotoUrl = _supabase.storage.from('kas-photos').getPublicUrl(`kampung/${fileName}`).data.publicUrl;
                 }
                 
-                // UPDATE: Menambahkan field baru ke query Insert
                 await _supabase.from('kas_data').insert([{ 
                     name: document.getElementById('input-nama').value, 
                     alamat: document.getElementById('input-alamat').value, 
                     kategori: document.getElementById('input-kategori').value, 
                     status: document.getElementById('input-status').value, 
                     description: document.getElementById('input-deskripsi').value, 
-                    
                     hari_pelaksanaan: document.getElementById('input-hari').value,
                     jam_operasional: document.getElementById('input-jam').value,
-                    jumlah_anak: parseInt(document.getElementById('input-jumlah-anak').value) || 0,
+                    jumlah_anak: document.getElementById('input-jumlah-anak').value,
                     kendala: document.getElementById('input-kendala').value,
-                    
                     foto_url: fotoUrl, 
                     lat: parseFloat(document.getElementById('input-lat').value), 
                     lng: parseFloat(document.getElementById('input-lng').value) 
                 }]);
 
-                tutupModalTambah(); await fetchDatabaseData();
-            } catch (err) { alert("Gagal Simpan Data!"); console.error(err); } finally { btn.disabled = false; btn.innerText = "SIMPAN KE DATABASE"; }
+                tutupModalTambah(); 
+                await fetchDatabaseData();
+                alert("Data berhasil ditambahkan!");
+            } catch (err) { 
+                alert("Gagal Simpan Data!"); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerHTML = originalText; 
+            }
         }
 
-        async function hapusTitik(id) { if (confirm("Hapus?")) { await _supabase.from('kas_data').delete().eq('id', id); fetchDatabaseData(); } }
+        async function hapusTitik(id) { 
+            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) { 
+                await _supabase.from('kas_data').delete().eq('id', id); 
+                fetchDatabaseData(); 
+            } 
+        }
 
+        // 7. UI INTERACTIONS (Click Map to Add)
         let isAddMode = false;
-        function toggleAddMode() { isAddMode = !isAddMode; document.getElementById('add-mode-alert').classList.toggle('hidden', !isAddMode); document.getElementById('btn-add-text').innerText = isAddMode ? "BATAL" : "KLIK DI PETA"; }
-        mapInstance.on('click', e => { if (!isAddMode) return; document.getElementById('input-lat').value = e.latlng.lat.toFixed(6); document.getElementById('input-lng').value = e.latlng.lng.toFixed(6); toggleAddMode(); bukaModalManual(); });
-        function bukaModalManual() { document.getElementById('modal-tambah-titik').classList.replace('hidden', 'flex'); }
-        function tutupModalTambah() { document.getElementById('modal-tambah-titik').classList.replace('flex', 'hidden'); document.getElementById('form-tambah-titik').reset(); document.getElementById('foto-preview').classList.add('hidden'); document.getElementById('foto-placeholder').classList.remove('hidden'); }
-        function previewFoto(e) { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = x => { document.getElementById('foto-preview').src = x.target.result; document.getElementById('foto-preview').classList.remove('hidden'); document.getElementById('foto-placeholder').classList.add('hidden'); }; r.readAsDataURL(f); } }
-        function tutupModalJikaBackground(e) { if (e.target.id === 'modal-tambah-titik') tutupModalTambah(); }
+        function toggleAddMode() { 
+            isAddMode = !isAddMode; 
+            const alertBox = document.getElementById('add-mode-alert');
+            const btnAdd = document.getElementById('btn-toggle-add');
+            
+            if(isAddMode) {
+                alertBox.classList.remove('hidden');
+                alertBox.classList.add('flex');
+                document.getElementById('btn-add-text').innerText = "Batal Mode Pilih";
+                btnAdd.classList.replace('bg-corporate-teal', 'bg-red-500');
+                btnAdd.classList.replace('hover:bg-corporate-blue', 'hover:bg-red-600');
+            } else {
+                alertBox.classList.add('hidden');
+                alertBox.classList.remove('flex');
+                document.getElementById('btn-add-text').innerText = "Klik Di Peta";
+                btnAdd.classList.replace('bg-red-500', 'bg-corporate-teal');
+                btnAdd.classList.replace('hover:bg-red-600', 'hover:bg-corporate-blue');
+            }
+        }
+
+        mapInstance.on('click', e => { 
+            if (!isAddMode) return; 
+            document.getElementById('input-lat').value = e.latlng.lat.toFixed(6); 
+            document.getElementById('input-lng').value = e.latlng.lng.toFixed(6); 
+            toggleAddMode(); 
+            bukaModalManual(); 
+        });
+
+        // Modal Logic
+        function bukaModalManual() { 
+            document.getElementById('modal-tambah-titik').classList.replace('hidden', 'flex'); 
+            document.body.style.overflow = 'hidden';
+        }
+        function tutupModalTambah() { 
+            document.getElementById('modal-tambah-titik').classList.replace('flex', 'hidden'); 
+            document.getElementById('form-tambah-titik').reset(); 
+            document.getElementById('foto-preview').classList.add('hidden'); 
+            document.getElementById('foto-placeholder').classList.remove('hidden'); 
+            document.body.style.overflow = 'auto';
+        }
+        function previewFoto(e) { 
+            const f = e.target.files[0]; 
+            if (f) { 
+                const r = new FileReader(); 
+                r.onload = x => { 
+                    document.getElementById('foto-preview').src = x.target.result; 
+                    document.getElementById('foto-preview').classList.remove('hidden'); 
+                    document.getElementById('foto-placeholder').classList.add('hidden'); 
+                }; 
+                r.readAsDataURL(f); 
+            } 
+        }
+        function tutupModalJikaBackground(e) { 
+            if (e.target.id === 'modal-tambah-titik') tutupModalTambah(); 
+        }
         
+        // Initial Fetch
         fetchDatabaseData();
     </script>
 </body>
