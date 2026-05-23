@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Tailwind Config (Aero Theme) -->
+    <!-- Tailwind Config (Updated to Image Palette) -->
     <script>
         tailwind.config = {
             theme: {
@@ -27,11 +27,12 @@
                         heading: ['"Aptos Narrow"', 'sans-serif'],
                     },
                     colors: {
-                        corporate: {
-                            navy: '#0B2046', 
-                            blue: '#1A3B7C',
-                            teal: '#149EAA', 
-                            light: '#EAF5F6',
+                        brand: {
+                            darkest: '#3F1C00', // Seal brown
+                            dark: '#7A3900',    // Chocolate
+                            medium: '#BD5900',  // Burnt orange
+                            primary: '#FF7900', // Safety orange
+                            light: '#FFA856',   // Sandy brown
                         }
                     }
                 }
@@ -51,7 +52,8 @@
         .delay-200 { animation-delay: 200ms; }
         
         .bg-hero-pattern {
-            background-image: linear-gradient(rgba(11, 32, 70, 0.85), rgba(11, 32, 70, 0.85)), url('https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            /* Updated to use brand-darkest rgb(63, 28, 0) */
+            background-image: linear-gradient(rgba(63, 28, 0, 0.85), rgba(63, 28, 0, 0.85)), url('https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -71,7 +73,8 @@
         /* Select Dropdown styling */
         .custom-select-filter {
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B2046' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            /* Updated SVG stroke to brand-darkest #3F1C00 */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233F1C00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;
         }
 
@@ -79,7 +82,7 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #149EAA; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #FF7900; } /* Updated to brand-primary */
 
         /* Sibling Hover Effect for Team */
         .hover-sibling-container:hover > .hover-sibling-item {
@@ -94,7 +97,7 @@
             opacity: 1;
             z-index: 20;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: #149EAA;
+            border-color: #FF7900; /* Updated to brand-primary */
         }
 
         /* Smooth reveal for sections & modals */
@@ -114,16 +117,16 @@
         }
     </style>
 </head>
-<body class="font-sans text-gray-700 antialiased bg-gray-50 selection:bg-corporate-teal selection:text-white">
+<body class="font-sans text-gray-700 antialiased bg-gray-50 selection:bg-brand-primary selection:text-white">
 
     <!-- Top Bar -->
-    <div class="hidden lg:block bg-corporate-navy text-gray-300 text-xs py-2 border-b border-white/10">
+    <div class="hidden lg:block bg-brand-darkest text-gray-300 text-xs py-2 border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div class="flex space-x-6">
-                <span class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3 text-corporate-teal"></i> Kelurahan Wonokusumo, Surabaya</span>
+                <span class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3 text-brand-primary"></i> Kelurahan Wonokusumo, Surabaya</span>
             </div>
             <div class="flex space-x-4">
-                <span class="flex items-center gap-2 font-medium text-white"><i data-lucide="info" class="w-3 h-3 text-corporate-teal"></i> Kampunge Arek Suroboyo (KAS) RPA</span>
+                <span class="flex items-center gap-2 font-medium text-white"><i data-lucide="info" class="w-3 h-3 text-brand-primary"></i> Kampunge Arek Suroboyo (KAS) RPA</span>
             </div>
         </div>
     </div>
@@ -134,25 +137,25 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo & Title -->
                 <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <div class="w-10 h-10 bg-corporate-navy rounded flex items-center justify-center">
+                    <div class="w-10 h-10 bg-brand-darkest rounded flex items-center justify-center">
                         <i data-lucide="map" class="text-white w-6 h-6"></i>
                     </div>
                     <div>
-                        <span class="font-heading font-bold text-lg md:text-xl text-corporate-navy block leading-none">PIJAR Wonokusumo</span>
-                        <span class="text-[10px] uppercase tracking-widest text-corporate-teal font-bold hidden sm:block mt-1">Platform Informasi Kampung Belajar</span>
+                        <span class="font-heading font-bold text-lg md:text-xl text-brand-darkest block leading-none">PIJAR Wonokusumo</span>
+                        <span class="text-[10px] uppercase tracking-widest text-brand-primary font-bold hidden sm:block mt-1">Platform Informasi Kampung Belajar</span>
                     </div>
                 </div>
 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#beranda" class="text-gray-800 hover:text-corporate-teal font-bold uppercase tracking-wide text-sm transition-colors">Beranda</a>
-                    <a href="#tentang" class="text-gray-800 hover:text-corporate-teal font-bold uppercase tracking-wide text-sm transition-colors">Tentang Program</a>
-                    <a href="#eksplorasi" class="bg-corporate-teal text-white px-6 py-2.5 rounded-sm font-bold uppercase tracking-wide text-sm hover:bg-corporate-blue transition-colors">Peta Persebaran</a>
+                    <a href="#beranda" class="text-gray-800 hover:text-brand-primary font-bold uppercase tracking-wide text-sm transition-colors">Beranda</a>
+                    <a href="#tentang" class="text-gray-800 hover:text-brand-primary font-bold uppercase tracking-wide text-sm transition-colors">Tentang Program</a>
+                    <a href="#eksplorasi" class="bg-brand-primary text-white px-6 py-2.5 rounded-sm font-bold uppercase tracking-wide text-sm hover:bg-brand-dark transition-colors">Peta Persebaran</a>
                 </div>
 
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-button" class="text-gray-800 hover:text-corporate-teal focus:outline-none p-2">
+                    <button id="mobile-menu-button" class="text-gray-800 hover:text-brand-primary focus:outline-none p-2">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                 </div>
@@ -160,11 +163,11 @@
         </div>
 
         <!-- Mobile Menu Panel -->
-        <div id="mobile-menu" class="hidden md:hidden bg-corporate-navy absolute w-full shadow-xl border-t border-white/10">
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-darkest absolute w-full shadow-xl border-t border-white/10">
             <div class="px-4 pt-2 pb-6 space-y-1">
-                <a href="#beranda" class="block px-3 py-3 text-sm uppercase tracking-wide font-bold text-white hover:text-corporate-teal border-b border-white/10">Beranda</a>
-                <a href="#tentang" class="block px-3 py-3 text-sm uppercase tracking-wide font-bold text-white hover:text-corporate-teal border-b border-white/10">Tentang Program</a>
-                <a href="#eksplorasi" class="block px-3 py-3 mt-4 text-center rounded-sm text-sm uppercase tracking-wide font-bold bg-corporate-teal text-white hover:bg-corporate-light hover:text-corporate-navy">Peta Persebaran</a>
+                <a href="#beranda" class="block px-3 py-3 text-sm uppercase tracking-wide font-bold text-white hover:text-brand-primary border-b border-white/10">Beranda</a>
+                <a href="#tentang" class="block px-3 py-3 text-sm uppercase tracking-wide font-bold text-white hover:text-brand-primary border-b border-white/10">Tentang Program</a>
+                <a href="#eksplorasi" class="block px-3 py-3 mt-4 text-center rounded-sm text-sm uppercase tracking-wide font-bold bg-brand-primary text-white hover:bg-brand-light hover:text-brand-darkest">Peta Persebaran</a>
             </div>
         </div>
     </nav>
@@ -173,18 +176,18 @@
     <section id="beranda" class="relative bg-hero-pattern min-h-[85vh] flex items-center">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
             <div class="max-w-4xl text-center md:text-left fade-in-up">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-corporate-teal/20 border border-corporate-teal/50 text-corporate-light uppercase tracking-wider text-xs font-bold mb-6 rounded-sm">
-                    <span class="w-2 h-2 bg-corporate-teal rounded-full animate-pulse"></span>
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-primary/20 border border-brand-primary/50 text-brand-light uppercase tracking-wider text-xs font-bold mb-6 rounded-sm">
+                    <span class="w-2 h-2 bg-brand-primary rounded-full animate-pulse"></span>
                     Web Geographic Information System
                 </div>
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight mb-6">
-                    "PIJAR <span class="text-corporate-teal"> WONOKUSUMO"</span> PLATFORM INFORMASI KAMPUNG BELAJAR
+                    "PIJAR <span class="text-brand-primary"> WONOKUSUMO"</span> PLATFORM INFORMASI KAMPUNG BELAJAR
                 </h1>
                 <p class="text-lg text-gray-300 mb-10 max-w-3xl leading-relaxed">
                     Menghadirkan transparansi dan kemudahan akses informasi sebaran program pendidikan anak usia dini, ruang sinau bareng, dan fasilitas edukasi lainnya di wilayah Wonokusumo.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <a href="#eksplorasi" class="px-8 py-4 bg-corporate-teal text-white font-semibold uppercase tracking-wide text-sm hover:bg-white hover:text-corporate-navy transition-all flex items-center justify-center gap-2 rounded-sm shadow-lg shadow-corporate-teal/30">
+                    <a href="#eksplorasi" class="px-8 py-4 bg-brand-primary text-white font-semibold uppercase tracking-wide text-sm hover:bg-white hover:text-brand-darkest transition-all flex items-center justify-center gap-2 rounded-sm shadow-lg shadow-brand-primary/30">
                         Buka Peta Persebaran
                         <i data-lucide="map" class="w-5 h-5"></i>
                     </a>
@@ -202,8 +205,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid lg:grid-cols-12 gap-12 items-center">
                 <div class="lg:col-span-7 fade-in-up">
-                    <h2 class="text-corporate-teal font-bold tracking-widest uppercase text-sm mb-3">Latar Belakang</h2>
-                    <h3 class="text-3xl md:text-4xl font-heading font-bold text-corporate-navy mb-8 leading-tight">Mencerdaskan Generasi dari Tingkat Kampung</h3>
+                    <h2 class="text-brand-primary font-bold tracking-widest uppercase text-sm mb-3">Latar Belakang</h2>
+                    <h3 class="text-3xl md:text-4xl font-heading font-bold text-brand-darkest mb-8 leading-tight">Mencerdaskan Generasi dari Tingkat Kampung</h3>
                     
                     <div class="space-y-6 text-gray-600 leading-relaxed text-justify">
                         <p>
@@ -214,8 +217,8 @@
                         </p>
                     </div>
 
-                    <div class="mt-10 border-l-4 border-corporate-teal pl-6 py-2 bg-gray-50/50 rounded-r-lg">
-                        <h4 class="text-xl font-heading font-bold text-corporate-navy mb-2">Integrasi Data Presisi</h4>
+                    <div class="mt-10 border-l-4 border-brand-primary pl-6 py-2 bg-gray-50/50 rounded-r-lg">
+                        <h4 class="text-xl font-heading font-bold text-brand-darkest mb-2">Integrasi Data Presisi</h4>
                         <p class="text-sm text-gray-600 italic">
                             "Menyajikan data riil berbasis lokasi untuk mendukung pengambilan kebijakan dan evaluasi fasilitas pendidikan tingkat kelurahan."
                         </p>
@@ -223,17 +226,17 @@
                 </div>
 
                 <div class="lg:col-span-5 relative fade-in-up delay-200 hidden lg:block">
-                    <div class="absolute inset-0 bg-corporate-teal translate-x-6 translate-y-6 rounded-sm"></div>
+                    <div class="absolute inset-0 bg-brand-primary translate-x-6 translate-y-6 rounded-sm"></div>
                     <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Anak-anak belajar" class="relative z-10 object-cover h-[500px] w-full rounded-sm shadow-2xl grayscale-[20%]">
                     
-                    <div class="absolute -bottom-8 -left-8 bg-corporate-navy text-white p-8 rounded-sm shadow-xl z-20 flex gap-8">
+                    <div class="absolute -bottom-8 -left-8 bg-brand-darkest text-white p-8 rounded-sm shadow-xl z-20 flex gap-8">
                         <div>
-                            <h4 class="text-4xl font-heading font-bold text-corporate-teal mb-1">16</h4>
+                            <h4 class="text-4xl font-heading font-bold text-brand-primary mb-1">16</h4>
                             <p class="text-xs font-medium uppercase tracking-widest text-gray-300">Total RW</p>
                         </div>
                         <div class="w-px bg-white/20"></div>
                         <div>
-                            <h4 id="stat-titik" class="text-4xl font-heading font-bold text-corporate-teal mb-1">...</h4>
+                            <h4 id="stat-titik" class="text-4xl font-heading font-bold text-brand-primary mb-1">...</h4>
                             <p class="text-xs font-medium uppercase tracking-widest text-gray-300">Titik Aktif</p>
                         </div>
                     </div>
@@ -247,7 +250,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <!-- Header -->
             <div class="text-center mb-16 fade-in-up">
-                <h3 class="text-3xl md:text-4xl font-heading font-bold text-corporate-navy mb-4">Our Team & Peta Persebaran</h3>
+                <h3 class="text-3xl md:text-4xl font-heading font-bold text-brand-darkest mb-4">Our Team & Peta Persebaran</h3>
                 <p class="text-gray-600 max-w-2xl mx-auto text-sm leading-relaxed">
                     Berikut merupakan peta persebaran dari program Kampung Belajar dan informasi mengenai anggota kelompok yang telah menyusun project ini.
                 </p>
@@ -257,13 +260,13 @@
             <div class="space-y-6 max-w-xl mx-auto fade-in-up delay-100">
                 <!-- Button Team -->
                 <div id="btn-team" onclick="toggleSection('team')" class="cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 border border-gray-100 p-8 text-center transition-all duration-300">
-                    <h4 class="text-4xl font-heading font-extrabold text-corporate-navy tracking-wide mb-1">Kelompok 6</h4>
+                    <h4 class="text-4xl font-heading font-extrabold text-brand-darkest tracking-wide mb-1">Kelompok 6</h4>
                     <p class="text-gray-500 text-sm font-medium">Anggota Kelompok yang Menyusun Project Ini</p>
                 </div>
 
                 <!-- Button Map (Experience) -->
                 <div id="btn-map" onclick="toggleSection('map')" class="cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 border border-gray-100 p-8 text-center transition-all duration-300">
-                    <h4 class="text-4xl font-heading font-extrabold text-corporate-navy tracking-wide mb-1">Peta Persebaran</h4>
+                    <h4 class="text-4xl font-heading font-extrabold text-brand-darkest tracking-wide mb-1">Peta Persebaran</h4>
                     <p class="text-gray-500 text-sm font-medium">Peta Persebaran dan Opsi untuk Menambahkan Program</p>
                 </div>
             </div>
@@ -273,8 +276,8 @@
             <!-- ============================== -->
             <div id="content-team" class="hidden mt-20 reveal-content">
                 <div class="text-center mb-12">
-                    <h4 class="text-2xl font-heading font-bold text-corporate-navy mb-2">Anggota Kelompok 6</h4>
-                    <div class="w-16 h-1 bg-corporate-teal mx-auto"></div>
+                    <h4 class="text-2xl font-heading font-bold text-brand-darkest mb-2">Anggota Kelompok 6</h4>
+                    <div class="w-16 h-1 bg-brand-primary mx-auto"></div>
                 </div>
                 
                 <!-- Exactly 5 people in the grid, using flex for perfect centering -->
@@ -282,60 +285,60 @@
                     
                     <!-- Team Member 1 -->
                     <div onclick="openTeamModal('Haryo Respati Kinari Putra', 'Ketua Kelompok 6', 'Fokus pada tata kelola internal, kemitraan strategis, dan sinkronisasi agenda antar RW untuk memastikan keberhasilan Kampung Belajar di wilayah Wonokusumo.', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
-                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-brand-primary/20 transition-all">
                             <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Haryo Respati Kinari Putra" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                         </div>
-                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Haryo Respati Kinari Putra</h5>
-                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Ketua Kelompok 6</p>
-                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                        <h5 class="text-lg font-heading font-bold text-brand-darkest">Haryo Respati Kinari Putra</h5>
+                        <p class="text-brand-primary font-medium text-[11px] uppercase tracking-widest mb-3">Ketua Kelompok 6</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-brand-primary transition-colors">
                             Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </div>
                     </div>
 
                     <!-- Team Member 2 -->
                     <div onclick="openTeamModal('Revania Liestin Ismawan', 'Koordinator PAUD & TK', 'Menyusun kurikulum ramah anak, mendampingi tenaga pengajar PAUD dan TK, serta mengkoordinasi fasilitas pendidikan dasar agar sesuai standar yang ditetapkan.', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
-                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-brand-primary/20 transition-all">
                             <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Revania Liestin Ismawan" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                         </div>
-                        <h5 class="text-lg font-heading font-bold text-corporate-navy leading-tight mb-1">Revania Liestin Ismawan</h5>
-                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator PAUD & TK</p>
-                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                        <h5 class="text-lg font-heading font-bold text-brand-darkest leading-tight mb-1">Revania Liestin Ismawan</h5>
+                        <p class="text-brand-primary font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator PAUD & TK</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-brand-primary transition-colors">
                             Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </div>
                     </div>
 
                     <!-- Team Member 3 -->
                     <div onclick="openTeamModal('Syahrul Arya Maulana', 'Koordinator TPQ & TPA', 'Bertanggung jawab atas integrasi program keagamaan, peningkatan mutu pengajar ngaji, dan pelaporan perkembangan sarana prasarana TPQ/TPA di kelurahan.', 'https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
-                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-brand-primary/20 transition-all">
                             <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Syahrul Arya Maulana" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                         </div>
-                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Syahrul Arya Maulana</h5>
-                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator TPQ & TPA</p>
-                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                        <h5 class="text-lg font-heading font-bold text-brand-darkest">Syahrul Arya Maulana</h5>
+                        <p class="text-brand-primary font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator TPQ & TPA</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-brand-primary transition-colors">
                             Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </div>
                     </div>
 
                     <!-- Team Member 4 -->
                     <div onclick="openTeamModal('Michelle Ernanta Berliana', 'Koordinator Sinau Bareng', 'Merancang program belajar tambahan yang menyenangkan dan inovatif. Membantu anak-anak usia sekolah dalam bimbingan tugas dan peningkatan literasi.', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
-                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-brand-primary/20 transition-all">
                             <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Michelle Ernanta Berliana" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                         </div>
-                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Michelle Ernanta Berliana</h5>
-                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator Sinau Bareng</p>
-                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                        <h5 class="text-lg font-heading font-bold text-brand-darkest">Michelle Ernanta Berliana</h5>
+                        <p class="text-brand-primary font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator Sinau Bareng</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-brand-primary transition-colors">
                             Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </div>
                     </div>
 
                     <!-- Team Member 5 -->
                     <div onclick="openTeamModal('Satya Priyatama', 'Koordinator Data & WebGIS', 'Pakar sistem informasi yang bertanggung jawab atas pengelolaan database spasial, pemutakhiran titik lokasi, dan keakuratan sistem Peta Sebaran web ini.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" class="hover-sibling-item w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)] group cursor-pointer bg-white p-6 rounded-sm border border-gray-200 text-center relative">
-                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-corporate-teal/20 transition-all">
+                        <div class="w-24 h-24 mx-auto mb-6 overflow-hidden rounded-full ring-4 ring-gray-50 group-hover:ring-brand-primary/20 transition-all">
                             <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Satya Priyatama" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                         </div>
-                        <h5 class="text-lg font-heading font-bold text-corporate-navy">Satya Priyatama</h5>
-                        <p class="text-corporate-teal font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator Data & WebGIS</p>
-                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-corporate-teal transition-colors">
+                        <h5 class="text-lg font-heading font-bold text-brand-darkest">Satya Priyatama</h5>
+                        <p class="text-brand-primary font-medium text-[11px] uppercase tracking-widest mb-3">Koordinator Data & WebGIS</p>
+                        <div class="text-gray-400 text-xs flex items-center justify-center gap-1 group-hover:text-brand-primary transition-colors">
                             Lihat Profil <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </div>
                     </div>
@@ -347,15 +350,15 @@
             <!-- ===================================== -->
             <div id="content-map" class="hidden mt-20 reveal-content">
                 <div class="text-center mb-12">
-                    <h4 class="text-2xl font-heading font-bold text-corporate-navy mb-2">Eksplorasi Geografis Titik Edukasi</h4>
-                    <div class="w-16 h-1 bg-corporate-teal mx-auto"></div>
+                    <h4 class="text-2xl font-heading font-bold text-brand-darkest mb-2">Eksplorasi Geografis Titik Edukasi</h4>
+                    <div class="w-16 h-1 bg-brand-primary mx-auto"></div>
                 </div>
 
                 <!-- Map Controls -->
                 <div class="mb-6 flex flex-wrap justify-between items-center gap-4 bg-white p-5 rounded-sm border border-gray-200 shadow-sm">
                     <div class="flex flex-wrap items-center gap-4">
                         <div class="relative">
-                            <select id="filter-kategori" onchange="applyFilter()" class="custom-select-filter appearance-none border border-gray-300 rounded-sm px-5 py-3 pr-10 text-sm font-bold text-corporate-navy outline-none focus:border-corporate-teal focus:ring-1 focus:ring-corporate-teal cursor-pointer bg-white min-w-[200px]">
+                            <select id="filter-kategori" onchange="applyFilter()" class="custom-select-filter appearance-none border border-gray-300 rounded-sm px-5 py-3 pr-10 text-sm font-bold text-brand-darkest outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary cursor-pointer bg-white min-w-[200px]">
                                 <option value="Semua">Tampilkan Semua Kategori</option>
                                 <option value="Sinau Bareng">Sinau Bareng</option>
                                 <option value="TPQ/TPA">TPQ/TPA</option>
@@ -365,14 +368,14 @@
                                 <option value="Bimbel">Bimbel</option>
                             </select>
                         </div>
-                        <span id="total-kampung" class="font-bold text-corporate-teal bg-corporate-light px-5 py-3 rounded-sm border border-corporate-teal/20 text-sm">0 Titik Ditemukan</span>
+                        <span id="total-kampung" class="font-bold text-brand-primary bg-brand-light/30 px-5 py-3 rounded-sm border border-brand-primary/20 text-sm">0 Titik Ditemukan</span>
                     </div>
 
                     <div class="flex gap-3">
-                        <button onclick="bukaModalManual()" class="bg-white border-2 border-corporate-navy text-corporate-navy hover:bg-corporate-navy hover:text-white px-5 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2">
+                        <button onclick="bukaModalManual()" class="bg-white border-2 border-brand-darkest text-brand-darkest hover:bg-brand-darkest hover:text-white px-5 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2">
                             <i data-lucide="plus-square" class="w-4 h-4"></i> Input Manual
                         </button>
-                        <button id="btn-toggle-add" onclick="toggleAddMode()" class="bg-corporate-teal hover:bg-corporate-blue text-white px-5 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all shadow-md flex items-center gap-2">
+                        <button id="btn-toggle-add" onclick="toggleAddMode()" class="bg-brand-primary hover:bg-brand-dark text-white px-5 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all shadow-md flex items-center gap-2">
                             <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> <span id="btn-add-text">Klik Di Peta</span>
                         </button>
                     </div>
@@ -381,7 +384,7 @@
                 <!-- Leaflet Map Container -->
                 <div class="h-[70vh] w-full rounded-sm shadow-xl border border-gray-300 relative overflow-hidden">
                     <!-- Alert Info for Click Mode -->
-                    <div id="add-mode-alert" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-corporate-navy text-white px-6 py-3 rounded-sm shadow-xl z-[60] text-xs font-bold hidden items-center gap-3">
+                    <div id="add-mode-alert" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-brand-darkest text-white px-6 py-3 rounded-sm shadow-xl z-[60] text-xs font-bold hidden items-center gap-3">
                         <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                         MODE PENAMBAHAN LOKASI AKTIF: KLIK PADA AREA PETA
                     </div>
@@ -394,11 +397,11 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-corporate-navy pt-16 pb-8 border-t-4 border-corporate-teal">
+    <footer class="bg-brand-darkest pt-16 pb-8 border-t-4 border-brand-primary">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 border-b border-white/10 pb-8">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-corporate-teal rounded flex items-center justify-center">
+                    <div class="w-10 h-10 bg-brand-primary rounded flex items-center justify-center">
                         <i data-lucide="map" class="text-white w-6 h-6"></i>
                     </div>
                     <div>
@@ -423,24 +426,24 @@
     <!-- ======================= -->
     <!-- MODAL TEAM MEMBER       -->
     <!-- ======================= -->
-    <div id="team-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-corporate-navy/80 backdrop-blur-sm p-4 transition-opacity">
+    <div id="team-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-brand-darkest/80 backdrop-blur-sm p-4 transition-opacity">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl overflow-hidden relative flex flex-col md:flex-row animate-[revealModal_0.3s_ease-out]">
-            <button onclick="closeTeamModal()" class="absolute top-4 right-4 text-gray-400 hover:text-corporate-navy z-10 bg-white/50 backdrop-blur-md rounded-full p-1 transition-colors">
+            <button onclick="closeTeamModal()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-darkest z-10 bg-white/50 backdrop-blur-md rounded-full p-1 transition-colors">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
             <div class="md:w-2/5 bg-gray-100">
                 <img id="modal-img" src="" alt="Team Member" class="w-full h-full object-cover min-h-[300px]">
             </div>
             <div class="p-8 md:p-10 md:w-3/5 flex flex-col justify-center bg-white">
-                <p id="modal-role" class="text-corporate-teal font-bold tracking-widest uppercase text-xs mb-2"></p>
-                <h4 id="modal-name" class="text-3xl font-heading font-bold text-corporate-navy mb-4"></h4>
-                <div class="w-12 h-1 bg-corporate-teal mb-6"></div>
+                <p id="modal-role" class="text-brand-primary font-bold tracking-widest uppercase text-xs mb-2"></p>
+                <h4 id="modal-name" class="text-3xl font-heading font-bold text-brand-darkest mb-4"></h4>
+                <div class="w-12 h-1 bg-brand-primary mb-6"></div>
                 <p id="modal-desc" class="text-gray-600 text-sm leading-relaxed mb-6"></p>
                 <div class="mt-auto flex gap-3">
-                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-corporate-teal hover:text-white transition-colors">
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-brand-primary hover:text-white transition-colors">
                         <i data-lucide="linkedin" class="w-4 h-4"></i>
                     </a>
-                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-corporate-teal hover:text-white transition-colors">
+                    <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-brand-primary hover:text-white transition-colors">
                         <i data-lucide="mail" class="w-4 h-4"></i>
                     </a>
                 </div>
@@ -451,13 +454,13 @@
     <!-- ============================================== -->
     <!-- MODAL FORM TAMBAH DATA PETA                  -->
     <!-- ============================================== -->
-    <div id="modal-tambah-titik" class="fixed inset-0 bg-corporate-navy/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 transition-opacity" onclick="tutupModalJikaBackground(event)">
+    <div id="modal-tambah-titik" class="fixed inset-0 bg-brand-darkest/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 transition-opacity" onclick="tutupModalJikaBackground(event)">
         <div class="bg-white rounded-sm shadow-2xl max-w-2xl w-full p-0 relative flex flex-col max-h-[90vh] animate-[revealModal_0.3s_ease-out]">
             
             <!-- Modal Header -->
             <div class="bg-gray-50 border-b border-gray-200 px-8 py-5 flex justify-between items-center shrink-0">
                 <div>
-                    <h3 class="text-xl font-heading font-bold text-corporate-navy">Form Entri Fasilitas Pendidikan</h3>
+                    <h3 class="text-xl font-heading font-bold text-brand-darkest">Form Entri Fasilitas Pendidikan</h3>
                     <p class="text-xs text-gray-500 mt-1">Lengkapi data untuk menambahkan titik lokasi baru ke dalam sistem.</p>
                 </div>
                 <button onclick="tutupModalTambah()" class="text-gray-400 hover:text-red-500 bg-white shadow-sm p-1.5 rounded transition-colors border border-gray-200">
@@ -470,26 +473,26 @@
                 <form id="form-tambah-titik" onsubmit="simpanTitikBaru(event)" class="space-y-5">
                     
                     <!-- Coordinate Grid -->
-                    <div class="grid grid-cols-2 gap-5 p-4 bg-corporate-light/50 border border-corporate-teal/20 rounded-sm">
+                    <div class="grid grid-cols-2 gap-5 p-4 bg-brand-light/20 border border-brand-primary/20 rounded-sm">
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Latitude</label>
-                            <input type="number" step="any" id="input-lat" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-1 focus:ring-corporate-teal focus:border-corporate-teal outline-none transition-all">
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Latitude</label>
+                            <input type="number" step="any" id="input-lat" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-1 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Longitude</label>
-                            <input type="number" step="any" id="input-lng" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-1 focus:ring-corporate-teal focus:border-corporate-teal outline-none transition-all">
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Longitude</label>
+                            <input type="number" step="any" id="input-lng" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-2 text-sm focus:ring-1 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Nama Instansi/Fasilitas <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-nama" required placeholder="Contoh: PAUD Melati RW 02" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal focus:border-corporate-teal outline-none transition-all">
+                        <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Nama Instansi/Fasilitas <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-nama" required placeholder="Contoh: PAUD Melati RW 02" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all">
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Kategori</label>
-                            <select id="input-kategori" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none appearance-none">
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Kategori</label>
+                            <select id="input-kategori" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none appearance-none">
                                 <option value="Sinau Bareng">Sinau Bareng</option>
                                 <option value="TPQ/TPA">TPQ/TPA</option>
                                 <option value="Paud">Paud</option>
@@ -499,30 +502,30 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Jumlah Anak</label>
-                            <input type="number" id="input-jumlah-anak" placeholder="Contoh: 20" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Jumlah Anak</label>
+                            <input type="number" id="input-jumlah-anak" placeholder="Contoh: 20" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Hari Pelaksanaan</label>
-                            <input type="text" id="input-hari" placeholder="Senin - Kamis" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Hari Pelaksanaan</label>
+                            <input type="text" id="input-hari" placeholder="Senin - Kamis" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Jam Operasional</label>
-                            <input type="text" id="input-jam" placeholder="16:00 - 18:00" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Jam Operasional</label>
+                            <input type="text" id="input-jam" placeholder="16:00 - 18:00" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Alamat Lengkap <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-alamat" required class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none">
+                        <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Alamat Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-alamat" required class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none">
                     </div>
                     
                     <div>
-                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Status Aktif</label>
-                        <select id="input-status" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none appearance-none">
+                        <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Status Aktif</label>
+                        <select id="input-status" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none appearance-none">
                             <option value="Aktif">Aktif</option>
                             <option value="Tidak Aktif">Tidak Aktif</option>
                         </select>
@@ -530,8 +533,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Deskripsi Singkat</label>
-                            <textarea id="input-deskripsi" rows="3" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-corporate-teal outline-none resize-none"></textarea>
+                            <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Deskripsi Singkat</label>
+                            <textarea id="input-deskripsi" rows="3" class="w-full bg-gray-50 border border-gray-300 rounded-sm px-4 py-2.5 text-sm focus:bg-white focus:ring-1 focus:ring-brand-primary outline-none resize-none"></textarea>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-red-600 uppercase tracking-widest mb-1.5">Kendala Lapangan</label>
@@ -540,11 +543,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-corporate-navy uppercase tracking-widest mb-1.5">Dokumentasi Foto</label>
+                        <label class="block text-[10px] font-bold text-brand-darkest uppercase tracking-widest mb-1.5">Dokumentasi Foto</label>
                         <input type="file" id="input-foto" accept="image/*" class="hidden" onchange="previewFoto(event)">
                         <div class="border-2 border-dashed border-gray-300 rounded-sm p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors bg-white" onclick="document.getElementById('input-foto').click()">
                             <div id="foto-placeholder" class="text-sm text-gray-500 flex flex-col items-center gap-2">
-                                <i data-lucide="image-plus" class="w-6 h-6 text-corporate-teal"></i>
+                                <i data-lucide="image-plus" class="w-6 h-6 text-brand-primary"></i>
                                 Klik untuk mengunggah foto lokasi
                             </div>
                             <img id="foto-preview" src="" class="hidden mx-auto max-h-40 rounded shadow-sm object-cover">
@@ -555,7 +558,7 @@
             
             <!-- Modal Footer -->
             <div class="bg-gray-50 border-t border-gray-200 px-8 py-5 shrink-0">
-                <button id="btn-submit" onclick="document.getElementById('form-tambah-titik').requestSubmit()" class="w-full bg-corporate-teal hover:bg-corporate-navy text-white font-bold py-3.5 rounded-sm shadow-md transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                <button id="btn-submit" onclick="document.getElementById('form-tambah-titik').requestSubmit()" class="w-full bg-brand-primary hover:bg-brand-darkest text-white font-bold py-3.5 rounded-sm shadow-md transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2">
                     <i data-lucide="save" class="w-4 h-4"></i> Simpan ke Database
                 </button>
             </div>
@@ -594,14 +597,14 @@
             if (sectionId === 'team') {
                 teamContent.classList.remove('hidden');
                 mapContent.classList.add('hidden');
-                btnTeam.classList.add('ring-2', 'ring-corporate-teal');
-                btnMap.classList.remove('ring-2', 'ring-corporate-teal');
+                btnTeam.classList.add('ring-2', 'ring-brand-primary');
+                btnMap.classList.remove('ring-2', 'ring-brand-primary');
                 setTimeout(() => { teamContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
             } else if (sectionId === 'map') {
                 mapContent.classList.remove('hidden');
                 teamContent.classList.add('hidden');
-                btnMap.classList.add('ring-2', 'ring-corporate-teal');
-                btnTeam.classList.remove('ring-2', 'ring-corporate-teal');
+                btnMap.classList.add('ring-2', 'ring-brand-primary');
+                btnTeam.classList.remove('ring-2', 'ring-brand-primary');
                 
                 // CRUCIAL: Memicu perbaikan render map Leaflet saat container dari display:none menjadi terlihat
                 setTimeout(() => { 
@@ -680,20 +683,20 @@
 
         // Batas RW Polygon
         const batasRWLayer = L.geoJSON(dataBatasRW, {
-            style: { color: "#1A3B7C", weight: 2, opacity: 0.8, fillOpacity: 0.05, dashArray: '4' },
-            onEachFeature: (f, l) => { if (f.properties && f.properties.RW) l.bindPopup(`<strong class="text-corporate-navy font-heading">Wilayah ${f.properties.RW}</strong>`); }
+            style: { color: "#7A3900", weight: 2, opacity: 0.8, fillOpacity: 0.05, dashArray: '4' },
+            onEachFeature: (f, l) => { if (f.properties && f.properties.RW) l.bindPopup(`<strong class="text-brand-darkest font-heading">Wilayah ${f.properties.RW}</strong>`); }
         }).addTo(mapInstance);
 
         L.control.layers({ "Peta Jalan Dasar": streetMap, "Citra Satelit": satelliteMap }, { "Batas RW": batasRWLayer }).addTo(mapInstance);
 
-        // 4. MARKER SYMBOLOGY (Adapted to theme)
+        // 4. MARKER SYMBOLOGY (Adapted to new image theme)
         const symbology = {
-            "Sinau Bareng": { color: "#149EAA", icon: "fa-book-reader" }, 
+            "Sinau Bareng": { color: "#FF7900", icon: "fa-book-reader" }, 
             "Panti Asuhan": { color: "#ec4899", icon: "fa-house" }, 
             "Paud": { color: "#f59e0b", icon: "fa-child" }, 
             "TK": { color: "#8b5cf6", icon: "fa-graduation-cap" }, 
             "TPQ/TPA": { color: "#ef4444", icon: "fa-mosque" }, 
-            "Bimbel": { color: "#0B2046", icon: "fa-pencil" }, 
+            "Bimbel": { color: "#3F1C00", icon: "fa-pencil" }, 
             "Default": { color: "#6b7280", icon: "fa-map-marker-alt" }
         };
 
@@ -741,11 +744,11 @@
                         ${item.foto_url ? `<img src="${item.foto_url}" style="width:100%;height:120px;object-fit:cover;border-radius:4px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.1);">` : ''}
                         
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
-                            <h4 style="font-weight:bold; margin:0; font-size:16px; color:#0B2046; line-height:1.2;">${item.name}</h4>
+                            <h4 style="font-weight:bold; margin:0; font-size:16px; color:#3F1C00; line-height:1.2;">${item.name}</h4>
                         </div>
-                        <p style="font-size:11px; color:#64748b; margin:0 0 10px 0;"><i class="fa-solid fa-location-dot" style="color:#149EAA;"></i> ${item.alamat}</p>
+                        <p style="font-size:11px; color:#64748b; margin:0 0 10px 0;"><i class="fa-solid fa-location-dot" style="color:#FF7900;"></i> ${item.alamat}</p>
                         
-                        <div style="margin:10px 0; padding:10px; background:#EAF5F6; border: 1px solid rgba(20,158,170,0.2); border-radius:4px; font-size:11px; color:#1A3B7C;">
+                        <div style="margin:10px 0; padding:10px; background:rgba(255, 168, 86, 0.2); border: 1px solid rgba(255,121,0,0.2); border-radius:4px; font-size:11px; color:#7A3900;">
                             <div style="margin-bottom:6px;"><b><i class="fa-regular fa-calendar" style="width:12px;"></i></b> ${item.hari_pelaksanaan || '-'}</div>
                             <div style="margin-bottom:6px;"><b><i class="fa-regular fa-clock" style="width:12px;"></i></b> ${item.jam_operasional || '-'}</div>
                             <div style="margin-bottom:6px;"><b><i class="fa-solid fa-users" style="width:12px;"></i></b> ${displayJumlahAnak}</div>
@@ -827,14 +830,14 @@
                 alertBox.classList.remove('hidden');
                 alertBox.classList.add('flex');
                 document.getElementById('btn-add-text').innerText = "Batal Mode Pilih";
-                btnAdd.classList.replace('bg-corporate-teal', 'bg-red-500');
-                btnAdd.classList.replace('hover:bg-corporate-blue', 'hover:bg-red-600');
+                btnAdd.classList.replace('bg-brand-primary', 'bg-red-500');
+                btnAdd.classList.replace('hover:bg-brand-dark', 'hover:bg-red-600');
             } else {
                 alertBox.classList.add('hidden');
                 alertBox.classList.remove('flex');
                 document.getElementById('btn-add-text').innerText = "Klik Di Peta";
-                btnAdd.classList.replace('bg-red-500', 'bg-corporate-teal');
-                btnAdd.classList.replace('hover:bg-red-600', 'hover:bg-corporate-blue');
+                btnAdd.classList.replace('bg-red-500', 'bg-brand-primary');
+                btnAdd.classList.replace('hover:bg-red-600', 'hover:bg-brand-dark');
             }
         }
 
